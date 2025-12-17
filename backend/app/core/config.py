@@ -73,6 +73,9 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     ENVIRONMENT: str = "development"
     
+    # Server Configuration (for Render.com and other platforms)
+    PORT: int = 8000  # Default port, Render will set PORT env variable
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

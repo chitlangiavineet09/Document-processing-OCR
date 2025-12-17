@@ -1,234 +1,271 @@
-# Vercel Deployment Guide for Frontend
+# Vercel Frontend Deployment Guide
 
-This guide will help you deploy the Next.js frontend to Vercel.
+This guide walks you through deploying the Next.js frontend on Vercel.
 
-## 📋 Prerequisites
+## Prerequisites
 
-1. **GitHub Repository**: Your code must be pushed to GitHub ✅
-   - Repository: `https://github.com/chitlangiavineet09/Document-processing-OCR.git`
-   - Your code is already pushed and ready!
+- GitHub repository with your frontend code
+- Vercel account (sign up at https://vercel.com or use GitHub)
+- Render.com backend deployed and running
+- Supabase project configured
 
-2. **Vercel Account**: Sign up at [vercel.com](https://vercel.com) (free tier available)
+## Step 1: Prepare Your Repository
 
-3. **Backend URL**: 
-   - If backend is not deployed yet, you can use your local backend URL for testing
-   - For production, you'll need to deploy backend to a service like Railway, Render, or Heroku
-   - Recommended: Deploy backend first, then update frontend with production backend URL
+Ensure your repository contains:
+- `frontend/` directory with your Next.js application
+- `frontend/package.json` with all dependencies
+- `frontend/next.config.mjs` with optimizations
+- `.gitignore` excluding `node_modules` and `.env.local`
 
----
+## Step 2: Deploy to Vercel
 
-## 🚀 Step 1: Create Vercel Account & Install CLI (Optional)
+### Option A: Deploy via Vercel Dashboard
 
-### Option A: Using Web Interface (Easiest - Recommended)
+1. Go to https://vercel.com and sign in (use GitHub for easy integration)
+2. Click **"Add New..."** → **"Project"**
+3. Import your GitHub repository
+4. Configure project:
+   - **Framework Preset**: Next.js (auto-detected)
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build` (default)
+   - **Output Directory**: `.next` (default)
+   - **Install Command**: `npm install` (default)
 
-1. Go to [vercel.com](https://vercel.com)
-2. Click **"Sign Up"** or **"Log In"**
-3. Choose **"Continue with GitHub"** to connect your GitHub account
-4. Authorize Vercel to access your repositories
+5. **Environment Variables**: Add the following (click "Environment Variables"):
 
-### Option B: Using Vercel CLI
-
-```bash
-# Install Vercel CLI globally
-npm install -g vercel
-
-# Login to Vercel
-vercel login
-```
-
----
-
-## 📦 Step 2: Import Project in Vercel
-
-### Using Web Interface:
-
-1. **Go to Vercel Dashboard**: [vercel.com/dashboard](https://vercel.com/dashboard)
-
-2. **Click "Add New..." → "Project"**
-
-3. **Import Git Repository**:
-   - You'll see a list of your GitHub repositories
-   - Find and select: **`Document-processing-OCR`** (or your repo name)
-   - Click **"Import"**
-
-4. **Configure Project**:
-   - **Project Name**: `bill-processor-frontend` (or your preferred name)
-   - **Root Directory**: Click "Edit" → Select `frontend` folder
-     - This tells Vercel that the Next.js app is in the `frontend` subdirectory
-   - **Framework Preset**: Should auto-detect as "Next.js"
-   - **Build Command**: Leave as default (`npm run build`)
-   - **Output Directory**: Leave as default (`.next`)
-   - **Install Command**: Leave as default (`npm install`)
-
----
-
-## 🔐 Step 3: Configure Environment Variables
-
-**Important**: Add these environment variables in Vercel before deploying:
-
-1. **In the Vercel project setup page**, scroll down to **"Environment Variables"** section
-
-2. **Add the following variables** (one by one):
-
-   ```env
+   ```
+   NEXT_PUBLIC_API_BASE_URL=https://your-backend.onrender.com
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    ```
-   - Replace with your actual Supabase project URL
 
-   ```env
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key-here
+   **Important**: 
+   - These must start with `NEXT_PUBLIC_` to be exposed to the browser
+   - Add them for all environments: Production, Preview, Development
+
+6. Click **"Deploy"**
+
+### Option B: Deploy via Vercel CLI
+
+1. Install Vercel CLI:
+   ```bash
+   npm i -g vercel
    ```
-   - Replace with your actual Supabase anon key (from Supabase dashboard → Settings → API)
 
-   ```env
-   NEXT_PUBLIC_API_BASE_URL=https://your-backend-url.com
+2. Navigate to frontend directory:
+   ```bash
+   cd frontend
    ```
-   - **For testing**: Use your local backend with ngrok or localtunnel
-   - **For production**: Use your deployed backend URL (Railway, Render, Heroku, etc.)
 
-3. **Set Environment**: Make sure to add these for all environments:
-   - ✅ Production
-   - ✅ Preview
-   - ✅ Development
+3. Login to Vercel:
+   ```bash
+   vercel login
+   ```
 
----
+4. Deploy:
+   ```bash
+   vercel
+   ```
 
-## 🎯 Step 4: Deploy
+5. Follow prompts to configure environment variables
 
-1. **Click "Deploy"** button at the bottom of the page
+6. For production deployment:
+   ```bash
+   vercel --prod
+   ```
 
-2. **Wait for Deployment**:
-   - Vercel will automatically:
-     - Install dependencies (`npm install`)
-     - Build your Next.js app (`npm run build`)
-     - Deploy to production
+## Step 3: Configure Domain (Optional)
 
-3. **Deployment Complete**: 
-   - You'll get a production URL like: `https://your-project.vercel.app`
-   - Vercel also creates a preview URL for each branch/PR
+1. Go to your project in Vercel dashboard
+2. Click **Settings** → **Domains**
+3. Add your custom domain
+4. Follow DNS configuration instructions
 
----
+## Step 4: Update Backend CORS
 
-## ✅ Step 5: Verify Deployment
+After frontend is deployed, update backend CORS origins:
 
-1. **Visit your production URL**: `https://your-project.vercel.app`
+1. Go to Render dashboard → Your web service → Environment
+2. Update `BACKEND_CORS_ORIGINS`:
+   - Development: `http://localhost:3000,http://127.0.0.1:3000`
+   - Production: `https://your-app.vercel.app`
+   - Multiple origins: `https://app1.vercel.app,https://app2.vercel.app` (comma-separated)
+3. Redeploy backend service
 
-2. **Test the application**:
-   - Try logging in
-   - Upload a document
-   - Verify API calls are working
+## Step 5: Verify Deployment
 
-3. **Check Browser Console** for any errors:
-   - Open DevTools (F12)
-   - Check Console tab for errors
-   - Check Network tab for failed API calls
+1. **Check Frontend**:
+   - Visit your Vercel deployment URL
+   - Should see your application homepage
+   - Check browser console for errors
 
----
+2. **Test Authentication**:
+   - Try logging in with Supabase authentication
+   - Verify auth tokens are stored correctly
 
-## 🔄 Step 6: Automatic Deployments
+3. **Test API Calls**:
+   - Upload a file (tests connection to Render backend)
+   - Check browser network tab for API requests
+   - Verify requests go to correct backend URL
 
-Vercel automatically deploys:
-- **Production**: Every push to `main` branch
-- **Preview**: Every push to other branches or PRs
+4. **Check Build Logs**:
+   - Go to Vercel dashboard → Your deployment → "Deployments"
+   - Click on latest deployment to see build logs
+   - Ensure build completed successfully
 
-**You don't need to manually deploy again!**
+## Environment Variables Reference
 
----
-
-## 🔧 Troubleshooting
-
-### Issue 1: "Build Failed" or "Missing Environment Variables"
-
-**Solution**:
-1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
-2. Make sure all required variables are set:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_API_BASE_URL`
-3. Redeploy: Go to Deployments → Click "..." → "Redeploy"
-
-### Issue 2: "API calls failing" (CORS errors or connection refused)
-
-**Solution**:
-1. Check `NEXT_PUBLIC_API_BASE_URL` is correct
-2. If backend is local, you need to:
-   - Use ngrok: `ngrok http 8000` → Use the https URL
-   - Or deploy backend first (recommended)
-3. Backend CORS must allow your Vercel domain:
-   - Update `BACKEND_CORS_ORIGINS` in backend `.env` to include your Vercel URL
-   - Example: `BACKEND_CORS_ORIGINS=http://localhost:3000,https://your-project.vercel.app`
-
-### Issue 3: "Authentication not working"
-
-**Solution**:
-1. Verify Supabase environment variables are correct
-2. Check Supabase Auth settings:
-   - Go to Supabase Dashboard → Authentication → URL Configuration
-   - Add your Vercel URL to "Site URL": `https://your-project.vercel.app`
-   - Add to "Redirect URLs": `https://your-project.vercel.app/**`
-
-### Issue 4: "Build works locally but fails on Vercel"
-
-**Solution**:
-1. Check build logs in Vercel Dashboard → Deployments → Click on failed deployment
-2. Common issues:
-   - Node version mismatch (Vercel uses Node 18+ by default, which should work)
-   - Missing dependencies (check `package.json`)
-   - TypeScript errors (fix before deploying)
-
----
-
-## 🌐 Custom Domain (Optional)
-
-1. Go to Vercel Dashboard → Your Project → Settings → Domains
-2. Add your custom domain (e.g., `app.yourdomain.com`)
-3. Follow DNS configuration instructions
-4. SSL certificate is automatically provisioned by Vercel
-
----
-
-## 📝 Environment Variables Reference
+### Required Variables
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | `https://xxxxx.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public) | `eyJhbGciOiJIUzI1NiIs...` |
-| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL (production) | `https://api.yourdomain.com` |
+| `NEXT_PUBLIC_API_BASE_URL` | FastAPI backend URL | `https://your-app.onrender.com` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | `https://xxxxx.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
 
-**Note**: `NEXT_PUBLIC_*` variables are exposed to the browser. Never put secrets here!
+**Important Notes**:
+- All frontend environment variables must start with `NEXT_PUBLIC_`
+- These are exposed to the browser, so don't include secrets
+- Update them in Vercel dashboard → Settings → Environment Variables
 
----
+## Build Configuration
 
-## 🚀 Next Steps
+The `next.config.mjs` file includes optimizations:
 
-1. **Deploy Backend**: Consider deploying backend to:
-   - Railway: [railway.app](https://railway.app)
-   - Render: [render.com](https://render.com)
-   - Heroku: [heroku.com](https://heroku.com)
-   - Or any Python hosting service
+- **Image Optimization**: AVIF and WebP format support
+- **Compression**: Gzip/Brotli compression enabled
+- **Security Headers**: HSTS, XSS protection, frame options
+- **Caching**: Static asset caching configured
 
-2. **Update Backend CORS**: Add Vercel URL to backend CORS allowed origins
+## Continuous Deployment
 
-3. **Update Supabase Auth**: Add Vercel URL to Supabase redirect URLs
+Vercel automatically deploys on:
 
-4. **Test End-to-End**: Verify all features work in production
+- **Push to main branch**: Deploys to production
+- **Push to other branches**: Creates preview deployment
+- **Pull requests**: Creates preview deployment for review
 
----
+## Preview Deployments
 
-## 📚 Useful Links
+- Every branch and PR gets a preview URL
+- Share preview URLs for testing before merging
+- Preview deployments use same environment variables as production (unless overridden)
 
-- [Vercel Documentation](https://vercel.com/docs)
-- [Next.js Deployment Guide](https://nextjs.org/docs/deployment)
-- [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
-- [Supabase Auth Configuration](https://supabase.com/docs/guides/auth)
+## Performance Optimization
 
----
+### Automatic Optimizations
 
-## 🎉 Success!
+Vercel automatically provides:
+- **Edge Network**: Global CDN for static assets
+- **Serverless Functions**: API routes run as serverless functions
+- **Image Optimization**: Automatic image optimization and resizing
+- **Code Splitting**: Automatic code splitting for optimal bundles
 
-Once deployed, your frontend will be available at:
-- **Production**: `https://your-project.vercel.app`
-- **Preview URLs**: Created for each branch/PR
+### Manual Optimizations (Already Configured)
 
-Happy deploying! 🚀
+- **React Strict Mode**: Enabled for development warnings
+- **Image Formats**: AVIF and WebP support
+- **Security Headers**: Configured in `next.config.mjs`
+- **API Retry Logic**: Implemented in `lib/api.ts`
+
+## Troubleshooting
+
+### Build Fails
+
+1. **Check Build Logs**: Vercel dashboard → Deployment → Build logs
+2. **Common Issues**:
+   - Missing environment variables
+   - TypeScript errors
+   - Missing dependencies in `package.json`
+   - Build timeout (increase in settings if needed)
+
+### API Calls Fail
+
+1. **Check Backend URL**: Verify `NEXT_PUBLIC_API_BASE_URL` is correct
+2. **Check CORS**: Ensure backend CORS includes your Vercel URL
+3. **Check Network Tab**: Look for CORS or network errors
+4. **Check Backend Logs**: Render dashboard → Web service → Logs
+
+### Authentication Issues
+
+1. **Verify Supabase Variables**: Check `NEXT_PUBLIC_SUPABASE_URL` and key
+2. **Check Supabase Auth Settings**: Ensure redirect URLs are configured
+3. **Check Browser Console**: Look for Supabase client errors
+
+### Environment Variables Not Working
+
+1. **Check Prefix**: Must start with `NEXT_PUBLIC_`
+2. **Redeploy**: Environment variables only apply to new deployments
+3. **Check Environment**: Ensure variables are set for correct environment (Production/Preview/Development)
+
+### Slow Performance
+
+1. **Check Vercel Analytics**: Enable analytics to see performance metrics
+2. **Optimize Images**: Use Next.js Image component
+3. **Check Bundle Size**: Analyze bundle with `@next/bundle-analyzer`
+4. **Check API Response Times**: Monitor Render backend performance
+
+## Monitoring
+
+### Vercel Analytics
+
+1. Go to project → Analytics
+2. Enable Analytics (may require plan upgrade)
+3. Monitor:
+   - Page views
+   - Performance metrics
+   - Core Web Vitals
+
+### Error Tracking
+
+1. Integrate error tracking (Sentry, LogRocket, etc.)
+2. Monitor runtime errors
+3. Set up alerts for critical errors
+
+## Custom Domain Setup
+
+1. Go to Settings → Domains
+2. Add your domain
+3. Configure DNS records:
+   - **A Record**: Point to Vercel IP
+   - **CNAME**: Point to Vercel domain
+4. SSL certificates are automatically provisioned
+
+## Cost
+
+- **Hobby Plan (Free)**:
+  - Unlimited deployments
+  - 100GB bandwidth/month
+  - Serverless function execution time included
+  - Perfect for development and small projects
+
+- **Pro Plan ($20/month)**:
+   - Everything in Hobby
+   - More bandwidth
+   - Team collaboration
+   - Advanced analytics
+
+## Next Steps
+
+After deployment:
+1. Test all features end-to-end
+2. Set up monitoring and alerts
+3. Configure custom domain (optional)
+4. Enable analytics
+5. Set up error tracking
+6. Configure preview deployments for team workflow
+
+## Checklist
+
+- [ ] Repository connected to Vercel
+- [ ] Environment variables configured
+- [ ] Initial deployment successful
+- [ ] Backend CORS updated with Vercel URL
+- [ ] Authentication working
+- [ ] API calls to backend working
+- [ ] File uploads working
+- [ ] All pages loading correctly
+- [ ] No console errors
+- [ ] Performance acceptable
+- [ ] Custom domain configured (optional)
 

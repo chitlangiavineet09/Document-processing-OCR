@@ -1,0 +1,30 @@
+services:
+  # FastAPI Web Service
+  - type: web
+    name: bill-processor-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+    plan: starter  # Change to standard/pro for production
+    
+  # Celery Background Worker
+  - type: worker
+    name: bill-processor-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A app.workers.celery_app worker --loglevel=info
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+    plan: starter  # Change to standard/pro for production
+
+  # Redis Service
+  - type: redis
+    name: bill-processor-redis
+    plan: starter  # Change to standard/pro for production
+    maxmemoryPolicy: allkeys-lru
+

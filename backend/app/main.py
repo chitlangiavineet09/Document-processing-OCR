@@ -6,6 +6,10 @@ from app.core.config import settings
 from app.core.auth import verify_supabase_token
 from app.api.routes import api_router
 import logging
+import os
+
+# Note: Heavy dependencies (OpenAI, pdf2image) are imported in service modules
+# which are lazy-loaded via routes, optimizing for cold starts on serverless platforms
 
 # Configure logging
 logging.basicConfig(
@@ -67,4 +71,8 @@ app.include_router(
 )
 
 logger.info("Application started successfully")
+logger.info(f"Environment: {settings.ENVIRONMENT}")
+# Render sets PORT automatically; uvicorn command handles binding via $PORT
+if os.getenv("RENDER"):
+    logger.info("Running on Render.com")
 
