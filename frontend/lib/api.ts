@@ -61,10 +61,11 @@ class ApiClient {
       async (config: RetryConfig) => {
         try {
           const headers = await getAuthHeaders();
-          config.headers = {
-            ...config.headers,
-            ...headers,
-          };
+          if (config.headers) {
+            Object.assign(config.headers, headers);
+          } else {
+            config.headers = headers as any;
+          }
         } catch (error) {
           // If no auth token, request will fail (as expected for protected routes)
         }
@@ -103,7 +104,7 @@ class ApiClient {
         const retryCount = config._retryCount || 0;
         if (retryCount >= MAX_RETRIES) {
           console.error(`Max retries (${MAX_RETRIES}) reached for ${config.url}`);
-          return Promise.reject(error);
+        return Promise.reject(error);
         }
         
         // Calculate delay and retry
