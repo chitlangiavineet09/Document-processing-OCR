@@ -17,7 +17,26 @@ def get_redis_client() -> redis.Redis:
     
     if _redis_client is None:
         try:
-            _redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
+            redis_url = settings.REDIS_URL
+            
+            # For Upstash (rediss://), we need to handle SSL properly
+            if redis_url.startswith('rediss://'):
+                # Parse URL and create client with SSL configuration
+                from urllib.parse import urlparse
+                parsed = urlparse(redis_url)
+                
+                _redis_client = redis.Redis(
+                    host=parsed.hostname,
+                    port=parsed.port or 6380,
+                    password=parsed.password,
+                    ssl=True,
+                    ssl_cert_reqs=None,  # Disable SSL certificate verification for Upstash
+                    decode_responses=True
+                )
+            else:
+                # Standard redis:// URL (local or non-SSL)
+                _redis_client = redis.from_url(redis_url, decode_responses=True)
+            
             # Test connection
             _redis_client.ping()
             logger.info("Redis client initialized successfully")
@@ -32,8 +51,16 @@ class RedisService:
     """Service for managing draft session state in Redis"""
 
     def __init__(self):
-        self.client = get_redis_client()
+        # Lazy initialization - don't fail on module import
+        self._client = None
         self.session_ttl = 3600  # 1 hour TTL for draft sessions
+    
+    @property
+    def client(self):
+        """Lazy-load Redis client on first use"""
+        if self._client is None:
+            self._client = get_redis_client()
+        return self._client
 
     def set_draft_session(self, session_key: str, data: Dict[str, Any]) -> bool:
         """
@@ -101,6 +128,6 @@ class RedisService:
             return False
 
 
-# Singleton instance
+# Singleton instance - lazy initialization to avoid startup errors
 redis_service = RedisService()
 
