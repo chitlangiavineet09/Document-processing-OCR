@@ -200,7 +200,7 @@ export default function LLMConfig() {
       <div className="space-y-6">
         {LLM_SETTINGS.map((settingDef) => {
           const setting = settings[settingDef.key];
-          const isUsingDefault = useDefaultPrompt[settingDef.key] || false;
+          const isUsingDefault = Boolean(useDefaultPrompt[settingDef.key]);
           const isPromptField = settingDef.type === 'prompt' && DEFAULT_PROMPTS[settingDef.key];
           
           // Determine current value to display
