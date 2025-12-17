@@ -16,6 +16,12 @@ interface PromptSetting extends Setting {
   type: 'prompt' | 'model';
 }
 
+interface LLMSettingTemplate {
+  key: string;
+  type: 'prompt' | 'model';
+  description: string;
+}
+
 const DEFAULT_PROMPTS: Record<string, string> = {
   classification_prompt: `You are a document classifier. Analyze the provided image and classify it into one of these categories:
 - 'bill': If it's an invoice or bill document
@@ -50,7 +56,7 @@ Return STRICT JSON ONLY with this exact shape:
 }`
 };
 
-const LLM_SETTINGS: PromptSetting[] = [
+const LLM_SETTINGS: LLMSettingTemplate[] = [
   { key: 'classification_prompt', type: 'prompt', description: 'Prompt for document classification (bill, e-way bill, unknown)' },
   { key: 'classification_model', type: 'model', description: 'LLM model for classification' },
   { key: 'ocr_prompt', type: 'prompt', description: 'Prompt for OCR extraction from bills' },
