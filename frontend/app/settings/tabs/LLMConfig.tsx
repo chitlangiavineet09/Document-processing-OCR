@@ -201,7 +201,7 @@ export default function LLMConfig() {
         {LLM_SETTINGS.map((settingDef) => {
           const setting = settings[settingDef.key];
           const isUsingDefault = Boolean(useDefaultPrompt[settingDef.key]);
-          const isPromptField = settingDef.type === 'prompt' && DEFAULT_PROMPTS[settingDef.key];
+          const isPromptField = Boolean(settingDef.type === 'prompt' && DEFAULT_PROMPTS[settingDef.key]);
           
           // Determine current value to display
           let currentValue: string;
@@ -281,7 +281,7 @@ export default function LLMConfig() {
                   <textarea
                     value={currentValue}
                     onChange={(e) => handleValueChange(settingDef.key, e.target.value)}
-                    disabled={isPromptField && isUsingDefault}
+                    disabled={Boolean(isPromptField && isUsingDefault)}
                     rows={10}
                     className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm ${
                       isPromptField && isUsingDefault 
