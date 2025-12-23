@@ -1,6 +1,7 @@
 from celery import Celery
 from app.core.config import settings
 import logging
+from urllib.parse import urlparse
 
 # Configure logging for Celery worker
 logging.basicConfig(
@@ -13,11 +14,37 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# Configure broker and backend URLs with SSL support for Upstash
+broker_url = settings.CELERY_BROKER_URL
+result_backend = settings.CELERY_RESULT_BACKEND
+
+# SSL configuration for Upstash Redis (rediss://)
+broker_transport_options = {}
+result_backend_transport_options = {}
+
+if broker_url.startswith('rediss://'):
+    # Parse Redis URL for SSL configuration
+    parsed = urlparse(broker_url)
+    broker_transport_options = {
+        'ssl_cert_reqs': None,  # Disable SSL certificate verification for Upstash
+        'ssl': True,
+    }
+    logger.info("Configured Celery broker with SSL for Upstash Redis")
+
+if result_backend.startswith('rediss://'):
+    # Parse Redis URL for SSL configuration
+    parsed = urlparse(result_backend)
+    result_backend_transport_options = {
+        'ssl_cert_reqs': None,  # Disable SSL certificate verification for Upstash
+        'ssl': True,
+    }
+    logger.info("Configured Celery result backend with SSL for Upstash Redis")
+
 # Create Celery app instance
 celery_app = Celery(
     "bill_processor",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
+    broker=broker_url,
+    backend=result_backend,
     include=["app.workers.tasks"]
 )
 
@@ -33,10 +60,15 @@ celery_app.conf.update(
     task_soft_time_limit=25 * 60,  # 25 minutes soft limit
     worker_prefetch_multiplier=1,
     worker_max_tasks_per_child=50,
+    # SSL transport options for Upstash Redis
+    broker_transport_options=broker_transport_options,
+    result_backend_transport_options=result_backend_transport_options,
     # Configure worker logging
     worker_log_format='[%(asctime)s: %(levelname)s/%(processName)s] %(message)s',
     worker_task_log_format='[%(asctime)s: %(levelname)s/%(processName)s][%(task_name)s(%(task_id)s)] %(message)s',
 )
 
 logger.info("Celery app configured successfully")
+logger.info(f"Broker URL: {broker_url[:30]}...")
+logger.info(f"Result backend: {result_backend[:30]}...")
 
