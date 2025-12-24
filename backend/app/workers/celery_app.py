@@ -81,5 +81,6 @@ logger.info(f"[DEBUG-HYP-A] Worker startup - Full broker_url: {broker_url}")
 logger.info(f"[DEBUG-HYP-A] Worker startup - Full result_backend: {result_backend}")
 logger.info(f"[DEBUG-HYP-A] Worker startup - broker_transport_options: {broker_transport_options}")
 logger.info(f"[DEBUG-HYP-E] After URL cleanup - broker_url: {broker_url}")
+logger.info(f"[DEBUG-HYP-G] Worker listening on queue: celery (exchange=celery, routing_key=celery)")
 # #endregion
 

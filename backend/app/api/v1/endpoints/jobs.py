@@ -145,11 +145,15 @@ async def create_job(
             # #region agent log
             from app.workers.celery_app import celery_app
             api_broker = getattr(celery_app.conf, 'broker_url', None) or getattr(celery_app, 'broker', None)
+            api_transport_opts = getattr(celery_app.conf, 'broker_transport_options', {})
             logger.info(f"[DEBUG-HYP-B] About to enqueue task - job_id: {job_id}, API broker URL: {api_broker}")
+            logger.info(f"[DEBUG-HYP-F] API broker_transport_options: {api_transport_opts}")
+            logger.info(f"[DEBUG-HYP-F] API celery_app.broker attribute: {getattr(celery_app, 'broker', 'NOT_SET')}")
             # #endregion
             result = process_job_task.delay(job_id)
             # #region agent log
             logger.info(f"[DEBUG-HYP-B] Task enqueued - job_id: {job_id}, task_id: {result.id if result else None}, task_state: {result.state if result else None}")
+            logger.info(f"[DEBUG-HYP-F] Task sent to queue: celery (exchange=celery, routing_key=celery)")
             # #endregion
             logger.info(f"[{request_id}] Job task enqueued: {job_id}")
         except Exception as e:
