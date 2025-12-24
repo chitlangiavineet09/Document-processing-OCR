@@ -83,5 +83,11 @@ logger.info(f"[DEBUG-HYP-A] Worker startup - Full result_backend: {result_backen
 logger.info(f"[DEBUG-HYP-A] Worker startup - broker_transport_options: {broker_transport_options}")
 logger.info(f"[DEBUG-HYP-E] After URL cleanup - broker_url: {broker_url}")
 logger.info(f"[DEBUG-HYP-G] Worker listening on queue: celery (exchange=celery, routing_key=celery)")
+# Test broker connection
+try:
+    with celery_app.pool.acquire(block=True) as conn:
+        logger.info(f"[DEBUG-HYP-H] Broker connection test successful - conn: {conn}")
+except Exception as e:
+    logger.error(f"[DEBUG-HYP-H] Broker connection test FAILED: {str(e)}", exc_info=True)
 # #endregion
 
