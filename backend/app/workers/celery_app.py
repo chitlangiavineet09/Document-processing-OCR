@@ -29,12 +29,12 @@ if broker_url.startswith('rediss://'):
     # Remove query parameters from URL - Kombu will use transport_options for SSL config
     clean_broker_url = f"rediss://{parsed.netloc}{parsed.path}" if parsed.path else f"rediss://{parsed.netloc}"
     broker_url = clean_broker_url
-    # Configure SSL for Kombu - Upstash requires specific SSL settings for blocking operations
+    # Configure SSL for Kombu - Upstash requires specific SSL settings for serverless Redis
     broker_transport_options = {
         'ssl_cert_reqs': ssl.CERT_NONE,  # Disable SSL certificate verification for Upstash
-        'health_check_interval': 30,  # Health check interval
-        'socket_keepalive': True,
-        'socket_keepalive_options': {},
+        'visibility_timeout': 3600,  # 1 hour visibility timeout
+        'socket_timeout': 30,
+        'socket_connect_timeout': 30,
     }
     logger.info("Configured Celery broker with SSL for Upstash Redis")
 
