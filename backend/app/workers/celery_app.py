@@ -25,18 +25,23 @@ result_backend_transport_options = {}
 if broker_url.startswith('rediss://'):
     # Parse Redis URL for SSL configuration
     parsed = urlparse(broker_url)
+    # Remove query parameters from URL - Kombu will use transport_options for SSL config
+    clean_broker_url = f"rediss://{parsed.netloc}{parsed.path}" if parsed.path else f"rediss://{parsed.netloc}"
+    broker_url = clean_broker_url
+    # Configure SSL for Kombu - use 'none' as string for ssl_cert_reqs (Kombu accepts this)
     broker_transport_options = {
-        'ssl_cert_reqs': None,  # Disable SSL certificate verification for Upstash
-        'ssl': True,
+        'ssl_cert_reqs': 'none',  # Disable SSL certificate verification for Upstash
     }
     logger.info("Configured Celery broker with SSL for Upstash Redis")
 
 if result_backend.startswith('rediss://'):
     # Parse Redis URL for SSL configuration
     parsed = urlparse(result_backend)
+    # Remove query parameters from URL
+    clean_result_backend = f"rediss://{parsed.netloc}{parsed.path}" if parsed.path else f"rediss://{parsed.netloc}"
+    result_backend = clean_result_backend
     result_backend_transport_options = {
-        'ssl_cert_reqs': None,  # Disable SSL certificate verification for Upstash
-        'ssl': True,
+        'ssl_cert_reqs': 'none',  # Disable SSL certificate verification for Upstash
     }
     logger.info("Configured Celery result backend with SSL for Upstash Redis")
 
@@ -75,5 +80,6 @@ logger.info(f"Result backend: {result_backend[:30]}...")
 logger.info(f"[DEBUG-HYP-A] Worker startup - Full broker_url: {broker_url}")
 logger.info(f"[DEBUG-HYP-A] Worker startup - Full result_backend: {result_backend}")
 logger.info(f"[DEBUG-HYP-A] Worker startup - broker_transport_options: {broker_transport_options}")
+logger.info(f"[DEBUG-HYP-E] After URL cleanup - broker_url: {broker_url}")
 # #endregion
 
