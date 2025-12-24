@@ -69,6 +69,13 @@ celery_app.conf.update(
     # SSL transport options for Upstash Redis
     broker_transport_options=broker_transport_options,
     result_backend_transport_options=result_backend_transport_options,
+    # Explicitly configure task routes and queues
+    task_routes={
+        'app.workers.tasks.process_job': {'queue': 'celery'},
+    },
+    task_default_queue='celery',
+    task_default_exchange='celery',
+    task_default_routing_key='celery',
     # Configure worker logging
     worker_log_format='[%(asctime)s: %(levelname)s/%(processName)s] %(message)s',
     worker_task_log_format='[%(asctime)s: %(levelname)s/%(processName)s][%(task_name)s(%(task_id)s)] %(message)s',
