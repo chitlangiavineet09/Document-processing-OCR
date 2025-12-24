@@ -2,6 +2,7 @@ from celery import Celery
 from app.core.config import settings
 import logging
 from urllib.parse import urlparse
+import ssl
 
 # Configure logging for Celery worker
 logging.basicConfig(
@@ -28,9 +29,9 @@ if broker_url.startswith('rediss://'):
     # Remove query parameters from URL - Kombu will use transport_options for SSL config
     clean_broker_url = f"rediss://{parsed.netloc}{parsed.path}" if parsed.path else f"rediss://{parsed.netloc}"
     broker_url = clean_broker_url
-    # Configure SSL for Kombu - use 'none' as string for ssl_cert_reqs (Kombu accepts this)
+    # Configure SSL for Kombu - use ssl.CERT_NONE constant for no certificate verification
     broker_transport_options = {
-        'ssl_cert_reqs': 'none',  # Disable SSL certificate verification for Upstash
+        'ssl_cert_reqs': ssl.CERT_NONE,  # Disable SSL certificate verification for Upstash
     }
     logger.info("Configured Celery broker with SSL for Upstash Redis")
 
@@ -41,7 +42,7 @@ if result_backend.startswith('rediss://'):
     clean_result_backend = f"rediss://{parsed.netloc}{parsed.path}" if parsed.path else f"rediss://{parsed.netloc}"
     result_backend = clean_result_backend
     result_backend_transport_options = {
-        'ssl_cert_reqs': 'none',  # Disable SSL certificate verification for Upstash
+        'ssl_cert_reqs': ssl.CERT_NONE,  # Disable SSL certificate verification for Upstash
     }
     logger.info("Configured Celery result backend with SSL for Upstash Redis")
 
