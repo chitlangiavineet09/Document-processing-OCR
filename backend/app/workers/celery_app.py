@@ -71,4 +71,9 @@ celery_app.conf.update(
 logger.info("Celery app configured successfully")
 logger.info(f"Broker URL: {broker_url[:30]}...")
 logger.info(f"Result backend: {result_backend[:30]}...")
+# #region agent log
+logger.info(f"[DEBUG-HYP-A] Worker startup - Full broker_url: {broker_url}")
+logger.info(f"[DEBUG-HYP-A] Worker startup - Full result_backend: {result_backend}")
+logger.info(f"[DEBUG-HYP-A] Worker startup - broker_transport_options: {broker_transport_options}")
+# #endregion
 

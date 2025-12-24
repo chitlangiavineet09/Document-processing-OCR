@@ -37,6 +37,10 @@ def process_job_task(self, job_id: str):
     Args:
         job_id: ID of the job thread to process
     """
+    # #region agent log
+    task_id = self.request.id if hasattr(self.request, 'id') else None
+    logger.info(f"[DEBUG-HYP-D] Task received by worker - job_id: {job_id}, task_id: {task_id}")
+    # #endregion
     # Use both logger and print to ensure visibility
     message = f"[{job_id}] Starting job processing"
     logger.info(message)

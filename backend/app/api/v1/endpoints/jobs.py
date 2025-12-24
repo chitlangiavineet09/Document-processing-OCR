@@ -142,9 +142,20 @@ async def create_job(
         
         # Enqueue Celery task for processing
         try:
-            process_job_task.delay(job_id)
+            # #region agent log
+            from app.workers.celery_app import celery_app
+            api_broker = getattr(celery_app.conf, 'broker_url', None) or getattr(celery_app, 'broker', None)
+            logger.info(f"[DEBUG-HYP-B] About to enqueue task - job_id: {job_id}, API broker URL: {api_broker}")
+            # #endregion
+            result = process_job_task.delay(job_id)
+            # #region agent log
+            logger.info(f"[DEBUG-HYP-B] Task enqueued - job_id: {job_id}, task_id: {result.id if result else None}, task_state: {result.state if result else None}")
+            # #endregion
             logger.info(f"[{request_id}] Job task enqueued: {job_id}")
         except Exception as e:
+            # #region agent log
+            logger.error(f"[DEBUG-HYP-C] Failed to enqueue - job_id: {job_id}, error: {str(e)}, type: {type(e).__name__}", exc_info=True)
+            # #endregion
             logger.error(f"[{request_id}] Failed to enqueue task: {str(e)}", exc_info=True)
             # Job is created, but task might fail - status will remain IN_QUEUE
             # Could add retry logic or manual trigger endpoint
